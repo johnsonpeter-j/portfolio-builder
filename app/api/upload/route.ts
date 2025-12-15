@@ -15,9 +15,15 @@ export async function POST(request: NextRequest) {
 
         const formData = await request.formData();
         const file = formData.get("file") as File;
+        const folderType = formData.get("folderType") as string || "profile"; // Default to "profile" for backward compatibility
 
         if (!file) {
             return NextResponse.json({ message: "No file provided" }, { status: 400 });
+        }
+
+        // Validate folder type
+        if (folderType !== "profile" && folderType !== "project") {
+            return NextResponse.json({ message: "Invalid folder type. Must be 'profile' or 'project'." }, { status: 400 });
         }
 
         // Validate file type
@@ -35,8 +41,11 @@ export async function POST(request: NextRequest) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        // Create uploads directory if it doesn't exist
-        const uploadsDir = join(process.cwd(), "public", "uploads", "portfolio-profile");
+        // Get user ID from session
+        const userId = session.user.id;
+
+        // Create uploads directory structure: uploads/{user_id}/{folderType}
+        const uploadsDir = join(process.cwd(), "public", "uploads", userId, folderType);
         if (!existsSync(uploadsDir)) {
             await mkdir(uploadsDir, { recursive: true });
         }
@@ -52,7 +61,7 @@ export async function POST(request: NextRequest) {
         await writeFile(filepath, buffer);
 
         // Return the public URL path
-        const publicUrl = `/uploads/portfolio-profile/${filename}`;
+        const publicUrl = `/uploads/${userId}/${folderType}/${filename}`;
 
         return NextResponse.json({ url: publicUrl, filename }, { status: 200 });
     } catch (error) {
@@ -60,6 +69,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: "Failed to upload file" }, { status: 500 });
     }
 }
+
 
 
 

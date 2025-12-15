@@ -35,6 +35,14 @@ export interface Experience {
     current?: boolean;
 }
 
+export interface Certificate {
+    name: string;
+    provider: string;
+    issuedOn: string;
+    certificateId?: string;
+    certificateUrl?: string;
+}
+
 export interface PortfolioData {
     personalInfo: {
         name: string;
@@ -47,6 +55,7 @@ export interface PortfolioData {
     projects: Project[];
     skills: string[] | SkillWithIcon[] | SkillCategory[];
     experience?: Experience[]; // Optional array of work experience
+    certificates?: Certificate[]; // Optional array of certificates
 }
 
 export interface TemplateProps {

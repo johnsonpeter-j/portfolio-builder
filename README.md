@@ -42,9 +42,26 @@
 3.  Set up environment variables:
     Create a `.env.local` file in the root directory:
     ```env
+    # Database
     MONGO_URL=mongodb://localhost:27017/portfolio-builder
-    AUTH_SECRET=your_super_secret_key
+    
+    # JWT Authentication
+    JWT_SECRET=your_jwt_secret_key_min_32_characters_long
+    AUTH_SECRET=your_auth_secret_key_min_32_characters_long
+    JWT_EXPIRES_IN=30
+    JWT_REFRESH_SECRET=your_refresh_token_secret_min_32_characters_long
+    JWT_REFRESH_EXPIRES_IN=90
+    JWT_ALGORITHM=HS256
+    JWT_ISSUER=portfolio-builder
+    JWT_AUDIENCE=portfolio-builder-users
+    
+    # NextAuth
     NEXTAUTH_URL=http://localhost:3000
+    ```
+    
+    **Note**: Generate secure random strings for JWT_SECRET and AUTH_SECRET. You can use:
+    ```bash
+    openssl rand -base64 32
     ```
 
 4.  Run the development server:

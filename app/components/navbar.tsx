@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
-import { LayoutDashboard, LogOut, Sparkles } from "lucide-react";
+import { LayoutDashboard, LogOut, Sparkles, User } from "lucide-react";
 
 export function Navbar() {
     const { data: session } = useSession();
     const pathname = usePathname();
     
-    // Hide navbar on auth pages and public portfolio pages
-    if (pathname?.startsWith("/auth") || pathname?.startsWith("/p/")) {
+    // Hide navbar on auth pages, public portfolio pages, and preview page
+    if (pathname?.startsWith("/auth") || pathname?.startsWith("/p/") || pathname?.startsWith("/create/preview")) {
         return null;
     }
 
@@ -31,6 +31,12 @@ export function Navbar() {
                     <div className="flex items-center gap-3">
                         {session ? (
                             <>
+                                <Link href="/profiles">
+                                    <Button variant="ghost" size="sm" className="hidden sm:flex items-center gap-2">
+                                        <User className="h-4 w-4" />
+                                        Profiles
+                                    </Button>
+                                </Link>
                                 <Link href="/dashboard">
                                     <Button variant="ghost" size="sm" className="hidden sm:flex items-center gap-2">
                                         <LayoutDashboard className="h-4 w-4" />

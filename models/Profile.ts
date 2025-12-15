@@ -1,24 +1,17 @@
 import mongoose, { Schema, model, models } from "mongoose";
+import { PortfolioData } from "@/app/types/portfolio";
 
-const PortfolioSchema = new Schema(
+const ProfileSchema = new Schema(
     {
         userId: {
             type: Schema.Types.ObjectId,
             ref: "User",
             required: true,
         },
-        templateId: {
+        name: {
             type: String,
             required: true,
-        },
-        slug: {
-            type: String,
-            unique: true,
-            required: true,
-        },
-        title: {
-            type: String,
-            default: "My Portfolio",
+            default: "My Profile",
         },
         description: {
             type: String,
@@ -29,7 +22,7 @@ const PortfolioSchema = new Schema(
                 title: String,
                 bio: String,
                 email: String,
-                profilePhoto: String, // Profile photo URL
+                profilePhoto: String,
                 socials: [
                     {
                         platform: String,
@@ -43,19 +36,19 @@ const PortfolioSchema = new Schema(
                     description: String,
                     link: String,
                     githubLink: String,
-                    image: String, // New field for project images
+                    image: String,
                 },
             ],
-            skills: Schema.Types.Mixed, // Can be string[], object[], etc.
+            skills: Schema.Types.Mixed,
             experience: [
                 {
                     company: String,
                     position: String,
                     startDate: String,
-                    endDate: String, // Optional for current positions
+                    endDate: String,
                     description: String,
                     location: String,
-                    current: Boolean, // True if this is the current position
+                    current: Boolean,
                 },
             ],
             certificates: [
@@ -68,20 +61,13 @@ const PortfolioSchema = new Schema(
                 },
             ],
         },
-        isPublished: {
-            type: Boolean,
-            default: false,
-        },
-        hasBeenEdited: {
-            type: Boolean,
-            default: false,
-        },
     },
     {
         timestamps: true,
     }
 );
 
-const Portfolio = models.Portfolio || model("Portfolio", PortfolioSchema);
+const Profile = models.Profile || model("Profile", ProfileSchema);
 
-export default Portfolio;
+export default Profile;
+

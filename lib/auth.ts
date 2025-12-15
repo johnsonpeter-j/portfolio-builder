@@ -37,20 +37,39 @@ export const authOptions: NextAuthOptions = {
     ],
     session: {
         strategy: "jwt",
+        maxAge: parseInt(process.env.JWT_EXPIRES_IN || "30") * 24 * 60 * 60, // Default 30 days in seconds
+    },
+    jwt: {
+        maxAge: parseInt(process.env.JWT_EXPIRES_IN || "30") * 24 * 60 * 60, // Default 30 days in seconds
+        secret: process.env.JWT_SECRET || process.env.AUTH_SECRET,
     },
     callbacks: {
         async jwt({ token, user, trigger, session }) {
+            // Initial sign in
             if (user) {
                 token.id = user.id;
+                token.email = user.email;
+                token.name = user.name;
+                token.image = user.image;
+                token.iat = Math.floor(Date.now() / 1000);
+                token.exp = Math.floor(Date.now() / 1000) + (parseInt(process.env.JWT_EXPIRES_IN || "30") * 24 * 60 * 60);
             }
-            if (trigger === "update" && session?.name) {
-                token.name = session.name;
+            
+            // Update session trigger
+            if (trigger === "update" && session) {
+                if (session.name) token.name = session.name;
+                if (session.email) token.email = session.email;
+                if (session.image) token.image = session.image;
             }
+            
             return token;
         },
         async session({ session, token }) {
-            if (session.user) {
+            if (session.user && token) {
                 session.user.id = token.id as string;
+                session.user.email = token.email as string;
+                session.user.name = token.name as string;
+                session.user.image = token.image as string;
             }
             return session;
         },
@@ -58,5 +77,6 @@ export const authOptions: NextAuthOptions = {
     pages: {
         signIn: "/auth/signin",
     },
-    secret: process.env.AUTH_SECRET,
+    secret: process.env.JWT_SECRET || process.env.AUTH_SECRET,
+    debug: process.env.NODE_ENV === "development",
 };

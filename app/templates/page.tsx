@@ -4,35 +4,32 @@ import { templateList } from "@/app/components/templates/registry";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
-import { Sparkles, ArrowRight, Palette, Check, Eye } from "lucide-react";
-import { useState } from "react";
+import { Sparkles, ArrowRight, Palette, Check, Eye, User } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function TemplatesPage() {
     const { data: session } = useSession();
     const router = useRouter();
-    const [loading, setLoading] = useState<string | null>(null);
+    const [profiles, setProfiles] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleSelectTemplate = async (templateId: string) => {
-        if (!session) {
-            router.push("/auth/signin");
-            return;
+    useEffect(() => {
+        if (session) {
+            fetchProfiles();
         }
+    }, [session]);
 
-        setLoading(templateId);
+    const fetchProfiles = async () => {
         try {
-            const res = await fetch("/api/portfolios", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ templateId }),
-            });
-
+            const res = await fetch("/api/profiles");
             if (res.ok) {
-                const newPortfolio = await res.json();
-                router.push(`/builder/${newPortfolio._id}`);
+                const data = await res.json();
+                setProfiles(data);
             }
         } catch (error) {
-            console.error("Failed to create portfolio", error);
-            setLoading(null);
+            console.error("Failed to fetch profiles", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -48,9 +45,20 @@ export default function TemplatesPage() {
                     <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                         Choose a Template
                     </h1>
-                    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                        Select a starting point for your portfolio. You can always customize it later.
+                    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
+                        Select a template and profile to create your portfolio. You can always customize it later.
                     </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                        <Button onClick={() => router.push("/create")} size="lg" className="gap-2">
+                            <Sparkles size={18} />
+                            Create Portfolio
+                            <ArrowRight size={18} />
+                        </Button>
+                        <Button onClick={() => router.push("/profiles")} variant="outline" size="lg" className="gap-2">
+                            <User size={18} />
+                            Manage Profiles
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Templates Grid */}
@@ -91,22 +99,12 @@ export default function TemplatesPage() {
                                         View Sample
                                     </Button>
                                     <Button
-                                        onClick={() => handleSelectTemplate(template.id)}
-                                        disabled={loading === template.id}
+                                        onClick={() => router.push("/create")}
                                         className="w-full sm:flex-1 gap-2 whitespace-nowrap"
                                         size="lg"
                                     >
-                                        {loading === template.id ? (
-                                            <>
-                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white flex-shrink-0"></div>
-                                                Creating...
-                                            </>
-                                        ) : (
-                                            <>
-                                                Use Template
-                                                <ArrowRight className="h-4 w-4 flex-shrink-0" />
-                                            </>
-                                        )}
+                                        Use Template
+                                        <ArrowRight className="h-4 w-4 flex-shrink-0" />
                                     </Button>
                                 </div>
                             </div>

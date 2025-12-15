@@ -49,7 +49,7 @@ export default function DashboardPage() {
     };
 
     const createPortfolio = async () => {
-        router.push("/templates");
+        router.push("/create");
     };
 
     const deletePortfolio = async (id: string) => {
@@ -127,7 +127,7 @@ export default function DashboardPage() {
                         </p>
                         <Button onClick={createPortfolio} size="lg" className="gap-2">
                             <Sparkles size={18} />
-                            Browse Templates
+                            Create Portfolio
                             <ArrowRight size={18} />
                         </Button>
                     </div>

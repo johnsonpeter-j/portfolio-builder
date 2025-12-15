@@ -167,6 +167,7 @@ export default function BuilderPage() {
         try {
             const formData = new FormData();
             formData.append("file", file);
+            formData.append("folderType", "profile");
 
             const response = await fetch("/api/upload", {
                 method: "POST",

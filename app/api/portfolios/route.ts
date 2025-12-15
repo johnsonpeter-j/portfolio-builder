@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     }
 
     try {
-        const { templateId } = await req.json();
+        const { templateId, title, description, content } = await req.json();
 
         if (!templateId) {
             return NextResponse.json({ message: "Template ID is required" }, { status: 400 });
@@ -38,26 +38,29 @@ export async function POST(req: Request) {
 
         await connectToDatabase();
 
+        // Use provided content or create default content
+        const portfolioContent = content || {
+            personalInfo: {
+                name: session.user.name || "My Name",
+                title: "Professional Title",
+                bio: "A short bio about myself.",
+                email: session.user.email,
+                profilePhoto: session.user.image || "",
+                socials: [],
+            },
+            projects: [],
+            skills: [],
+            experience: [],
+        };
+
         const newPortfolio = await Portfolio.create({
             userId: session.user.id,
             templateId,
             slug: nanoid(10), // Random unique slug
-            title: "My Portfolio", // Default title
-            description: "", // Empty description by default
+            title: title || "My Portfolio", // Use provided title or default
+            description: description || "", // Use provided description or empty
             hasBeenEdited: false, // Will be set to true when user first saves changes
-            content: {
-                personalInfo: {
-                    name: session.user.name || "My Name",
-                    title: "Professional Title",
-                    bio: "A short bio about myself.",
-                    email: session.user.email,
-                    profilePhoto: session.user.image || "",
-                    socials: [],
-                },
-                projects: [],
-                skills: ["Skill 1", "Skill 2"],
-                experience: [],
-            },
+            content: portfolioContent,
         });
 
         return NextResponse.json(newPortfolio, { status: 201 });
