@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
-import { Edit2, Eye, Trash2, Plus, Layout, Calendar, Sparkles, ArrowRight, Globe, CheckCircle2 } from "lucide-react";
+import { ConfirmModal } from "@/app/components/ui/confirm-modal";
+import { Edit2, Eye, Trash2, Plus, Layout, Calendar, Sparkles, ArrowRight, Globe, CheckCircle2, Palette } from "lucide-react";
+import { templateList } from "@/app/components/templates/registry";
 
 interface PortfolioItem {
     _id: string;
@@ -21,6 +23,15 @@ export default function DashboardPage() {
     const { data: session, status } = useSession();
     const [portfolios, setPortfolios] = useState<PortfolioItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; portfolioId: string | null }>({
+        isOpen: false,
+        portfolioId: null,
+    });
+    const [templateModal, setTemplateModal] = useState<{ isOpen: boolean; portfolioId: string | null; currentTemplate: string | null }>({
+        isOpen: false,
+        portfolioId: null,
+        currentTemplate: null,
+    });
     const router = useRouter();
 
     useEffect(() => {
@@ -52,18 +63,24 @@ export default function DashboardPage() {
         router.push("/create");
     };
 
-    const deletePortfolio = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this portfolio?")) return;
+    const handleDeleteClick = (id: string) => {
+        setDeleteModal({ isOpen: true, portfolioId: id });
+    };
+
+    const deletePortfolio = async () => {
+        if (!deleteModal.portfolioId) return;
 
         try {
-            const res = await fetch(`/api/portfolios/${id}`, {
+            const res = await fetch(`/api/portfolios/${deleteModal.portfolioId}`, {
                 method: "DELETE",
             });
             if (res.ok) {
-                setPortfolios(portfolios.filter((p) => p._id !== id));
+                setPortfolios(portfolios.filter((p) => p._id !== deleteModal.portfolioId));
             }
         } catch (error) {
             console.error("Failed to delete", error);
+        } finally {
+            setDeleteModal({ isOpen: false, portfolioId: null });
         }
     };
 
@@ -82,6 +99,33 @@ export default function DashboardPage() {
         } catch (error) {
             console.error("Failed to update publish status", error);
             alert("Failed to update publish status. Please try again.");
+        }
+    };
+
+    const handleTemplateChangeClick = (id: string, currentTemplate: string) => {
+        setTemplateModal({ isOpen: true, portfolioId: id, currentTemplate });
+    };
+
+    const handleTemplateChange = async (newTemplateId: string) => {
+        if (!templateModal.portfolioId) return;
+
+        try {
+            const res = await fetch(`/api/portfolios/${templateModal.portfolioId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ templateId: newTemplateId }),
+            });
+            if (res.ok) {
+                setPortfolios(portfolios.map((p) => 
+                    p._id === templateModal.portfolioId ? { ...p, templateId: newTemplateId } : p
+                ));
+                setTemplateModal({ isOpen: false, portfolioId: null, currentTemplate: null });
+            } else {
+                alert("Failed to change template. Please try again.");
+            }
+        } catch (error) {
+            console.error("Failed to change template", error);
+            alert("Failed to change template. Please try again.");
         }
     };
 
@@ -176,57 +220,65 @@ export default function DashboardPage() {
                                     </div>
 
                                     <div className="flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-800">
-                                        <Link href={`/builder/${portfolio._id}`} className="flex-1">
-                                            <Button variant="secondary" className="w-full gap-2" size="sm">
+                                        <Link 
+                                            href={`/builder/${portfolio._id}`}
+                                            className="flex-1"
+                                        >
+                                            <Button 
+                                                className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white" 
+                                                size="sm"
+                                            >
                                                 <Edit2 size={14} />
                                                 Edit
                                             </Button>
                                         </Link>
 
-                                        <button
-                                            onClick={() => handlePublish(portfolio._id, portfolio.isPublished)}
-                                            className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                                                portfolio.isPublished
-                                                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50"
-                                                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                                            }`}
-                                            title={portfolio.isPublished ? "Click to unpublish" : "Click to publish"}
-                                        >
-                                            {portfolio.isPublished ? (
-                                                <>
-                                                    <CheckCircle2 size={14} />
-                                                    Published
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Globe size={14} />
-                                                    Publish
-                                                </>
-                                            )}
-                                        </button>
-
-                                        {portfolio.isPublished && (
-                                            <Link href={`/p/${portfolio.slug}`} target="_blank">
-                                                <Button variant="outline" className="gap-2" size="sm">
+                                        {portfolio.isPublished ? (
+                                            <Link href={`/p/${portfolio.slug}`} target="_blank" className="flex-1">
+                                                <Button variant="outline" className="w-full gap-2" size="sm">
                                                     <Eye size={14} />
                                                     View
                                                 </Button>
                                             </Link>
+                                        ) : (
+                                            <Button
+                                                onClick={() => handlePublish(portfolio._id, portfolio.isPublished)}
+                                                className="flex-1 gap-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                                size="sm"
+                                            >
+                                                <Globe size={14} />
+                                                Publish
+                                            </Button>
                                         )}
 
-                                        <button
-                                            onClick={() => deletePortfolio(portfolio._id)}
-                                            className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+                                        <Button
+                                            onClick={() => handleDeleteClick(portfolio._id)}
+                                            variant="outline"
+                                            className="flex-1 gap-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700"
+                                            size="sm"
                                             aria-label="Delete portfolio"
                                         >
-                                            <Trash2 size={16} />
-                                        </button>
+                                            <Trash2 size={14} />
+                                            Delete
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 )}
+
+                {/* Delete Confirmation Modal */}
+                <ConfirmModal
+                    isOpen={deleteModal.isOpen}
+                    onClose={() => setDeleteModal({ isOpen: false, portfolioId: null })}
+                    onConfirm={deletePortfolio}
+                    title="Delete Portfolio"
+                    message="Are you sure you want to delete this portfolio? This action cannot be undone."
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                    variant="danger"
+                />
             </div>
         </div>
     );

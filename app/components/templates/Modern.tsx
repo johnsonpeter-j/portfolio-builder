@@ -1,6 +1,10 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
-import { Github, Linkedin, Twitter, Mail, ExternalLink, Calendar, MapPin, Award, Briefcase, Code, User, FileText } from 'lucide-react';
+import { Github, Linkedin, Twitter, Mail, ExternalLink, Calendar, MapPin, Award, Briefcase, Code, User, FileText, Phone } from 'lucide-react';
 import { TemplateProps } from '@/app/types/portfolio';
+import { getResponsiveGridClasses } from './utils';
+import PortfolioBuilderBadge from '@/app/components/PortfolioBuilderBadge';
 
 const Portfolio = ({ data }: TemplateProps) => {
   const [scrolled, setScrolled] = useState(false);
@@ -23,11 +27,28 @@ const Portfolio = ({ data }: TemplateProps) => {
     ? data.skills.filter((s): s is string => typeof s === 'string')
     : [];
 
-  const formatDate = (date: string | Date) => {
-    if (typeof date === 'string') {
-      return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(new Date(date));
+  const formatDate = (date: string | Date): string => {
+    if (!date) return 'N/A';
+    
+    try {
+      let dateObj: Date;
+      if (typeof date === 'string') {
+        if (!date.trim()) return 'N/A';
+        dateObj = new Date(date);
+      } else {
+        dateObj = date;
+      }
+      
+      // Check if date is valid
+      if (isNaN(dateObj.getTime())) {
+        return typeof date === 'string' ? date : 'N/A'; // Return the original string if invalid
+      }
+      
+      return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(dateObj);
+    } catch (error) {
+      // If formatting fails, return the original value or N/A
+      return typeof date === 'string' ? date : 'N/A';
     }
-    return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
   };
 
   const getSocialIcon = (platform: string) => {
@@ -142,6 +163,16 @@ const Portfolio = ({ data }: TemplateProps) => {
                       <Mail className="w-6 h-6 text-white" />
                     </div>
                   </a>
+                  {data.personalInfo.phoneNo && (
+                    <a
+                      href={`tel:${data.personalInfo.phoneNo}`}
+                      className="group relative p-4 bg-slate-800/50 rounded-xl hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 transition-all border border-purple-500/20 hover:border-transparent hover:shadow-lg hover:shadow-purple-500/50 hover:scale-110"
+                    >
+                      <div className="relative z-10">
+                        <Phone className="w-6 h-6 text-white" />
+                      </div>
+                    </a>
+                  )}
                 </div>
               )}
             </div>
@@ -175,7 +206,7 @@ const Portfolio = ({ data }: TemplateProps) => {
             <div className="animate-fade-in">
               <h2 className="text-5xl font-bold text-white mb-4 text-center">Featured Projects</h2>
               <p className="text-gray-400 text-center mb-12 text-lg">Showcasing my recent work and innovations</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className={`${getResponsiveGridClasses(data.projects.length, 3)} gap-8`}>
                 {data.projects.map((project, idx) => (
                   <div
                     key={idx}
@@ -286,7 +317,7 @@ const Portfolio = ({ data }: TemplateProps) => {
             <div className="animate-fade-in">
               <h2 className="text-5xl font-bold text-white mb-4 text-center">Certifications</h2>
               <p className="text-gray-400 text-center mb-12 text-lg">Professional credentials and achievements</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className={`${getResponsiveGridClasses(data.certificates.length, 3)} gap-8`}>
                 {data.certificates.map((cert, idx) => (
                 <div
                   key={idx}
@@ -389,6 +420,8 @@ const Portfolio = ({ data }: TemplateProps) => {
           </div>
         </div>
       </footer>
+
+      <PortfolioBuilderBadge />
 
       <style>{`
         @keyframes fade-in {

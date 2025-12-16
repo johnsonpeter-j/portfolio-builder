@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { templates } from "@/app/components/templates/registry";
 import { PortfolioData } from "@/app/types/portfolio";
 import { Button } from "@/app/components/ui/button";
 import { ArrowLeft, X, Loader2 } from "lucide-react";
-import Link from "next/link";
 
-export default function CreatePreviewPage() {
+function CreatePreviewContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [templateId, setTemplateId] = useState<string | null>(null);
@@ -99,57 +98,26 @@ export default function CreatePreviewPage() {
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950">
-            {/* Header Bar */}
-            <div className="sticky top-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <Button 
-                                onClick={() => {
-                                    // Preserve template, profile, title, and description in URL when going back
-                                    const template = searchParams.get("template");
-                                    const profile = searchParams.get("profile");
-                                    const title = searchParams.get("title");
-                                    const description = searchParams.get("description");
-                                    
-                                    const params = new URLSearchParams();
-                                    if (template) params.set("template", template);
-                                    if (profile) params.set("profile", profile);
-                                    if (title) params.set("title", title);
-                                    if (description) params.set("description", description);
-                                    
-                                    router.push(`/create?${params.toString()}`);
-                                }}
-                                variant="ghost" 
-                                size="sm" 
-                                className="gap-2"
-                            >
-                                <ArrowLeft className="h-4 w-4" />
-                                Back to Create
-                            </Button>
-                            <div className="h-6 w-px bg-gray-300 dark:bg-gray-700" />
-                            <div>
-                                <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                    Live Preview
-                                </h1>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    Template: {templateId}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 rounded-full">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                            <span className="text-xs font-medium text-green-700 dark:text-green-400">Live</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {/* Template Preview */}
             <div className="w-full">
                 <TemplateComponent data={profileData} />
             </div>
         </div>
+    );
+}
+
+export default function CreatePreviewPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="h-8 w-8 animate-spin text-indigo-600 dark:text-indigo-400" />
+                    <p className="text-gray-600 dark:text-gray-400">Loading preview...</p>
+                </div>
+            </div>
+        }>
+            <CreatePreviewContent />
+        </Suspense>
     );
 }
 

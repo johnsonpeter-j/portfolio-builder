@@ -23,12 +23,17 @@ const PortfolioSchema = new Schema(
         description: {
             type: String,
         },
+        profileId: {
+            type: Schema.Types.ObjectId,
+            ref: "Profile",
+        },
         content: {
             personalInfo: {
                 name: String,
                 title: String,
                 bio: String,
                 email: String,
+                phoneNo: String,
                 profilePhoto: String, // Profile photo URL
                 socials: [
                     {

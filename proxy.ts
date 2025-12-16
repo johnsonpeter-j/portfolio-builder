@@ -2,7 +2,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 export default withAuth(
-    function middleware(req) {
+    function proxy(req) {
         // If user is authenticated, allow access
         return NextResponse.next();
     },
@@ -34,4 +34,6 @@ export const config = {
         "/api/upload/:path*",
     ],
 };
+
+
 

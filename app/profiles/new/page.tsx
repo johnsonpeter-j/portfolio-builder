@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { PortfolioData } from "@/app/types/portfolio";
 import { Button } from "@/app/components/ui/button";
-import { Save, X, Plus, Trash2, User, Briefcase, Code, Image as ImageIcon, Link as LinkIcon, Github, Building2, Calendar, MapPin, Share2, Upload, Loader2, FileText, Award } from "lucide-react";
+import { Save, X, Plus, Trash2, User, Briefcase, Code, Image as ImageIcon, Link as LinkIcon, Github, Building2, Calendar, MapPin, Share2, Upload, Loader2, FileText, Award, Mail, Phone } from "lucide-react";
 import { Experience, Certificate } from "@/app/types/portfolio";
 
 export default function NewProfilePage() {
@@ -34,6 +34,7 @@ export default function NewProfilePage() {
                     title: "",
                     bio: "",
                     email: "",
+                    phoneNo: "",
                     profilePhoto: "",
                     socials: [],
                 },
@@ -459,6 +460,34 @@ export default function NewProfilePage() {
                                         value={data.personalInfo.bio}
                                         onChange={(e) => updatePersonalInfo("bio", e.target.value)}
                                     />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block flex items-center gap-1">
+                                            <Mail className="h-3 w-3" />
+                                            Email
+                                        </label>
+                                        <input
+                                            type="email"
+                                            placeholder="your.email@example.com"
+                                            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                            value={data.personalInfo.email}
+                                            onChange={(e) => updatePersonalInfo("email", e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block flex items-center gap-1">
+                                            <Phone className="h-3 w-3" />
+                                            Phone Number
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            placeholder="+1 234 567 8900"
+                                            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                            value={data.personalInfo.phoneNo}
+                                            onChange={(e) => updatePersonalInfo("phoneNo", e.target.value)}
+                                        />
+                                    </div>
                                 </div>
                                 <div>
                                     <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block flex items-center gap-1">

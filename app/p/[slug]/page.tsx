@@ -1,5 +1,6 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import Portfolio from "@/models/Portfolio";
+import Profile from "@/models/Profile";
 import { templates } from "@/app/components/templates/registry";
 import { notFound } from "next/navigation";
 import { Metadata } from 'next';
@@ -14,6 +15,21 @@ export const dynamic = 'force-dynamic';
 async function getPortfolio(slug: string) {
     await connectToDatabase();
     const portfolio = await Portfolio.findOne({ slug, isPublished: true });
+    
+    if (!portfolio) {
+        return null;
+    }
+
+    // If portfolio has profileId, fetch latest content from profile
+    if (portfolio.profileId) {
+        const profile = await Profile.findById(portfolio.profileId);
+        if (profile) {
+            const portfolioObj = portfolio.toObject();
+            portfolioObj.content = profile.content;
+            return portfolioObj;
+        }
+    }
+
     return portfolio;
 }
 
@@ -42,12 +58,6 @@ export default async function PublicPortfolioPage({ params }: Props) {
     const portfolioData = JSON.parse(JSON.stringify(portfolio.content));
 
     return (
-        <>
-            <TemplateComponent data={portfolioData} />
-            {/* Branding Footer */}
-            <footer className="py-6 text-center text-xs text-gray-500 bg-gray-50 border-t">
-                <p>Built with <a href="/" className="font-bold hover:underline">Portfolio Builder</a></p>
-            </footer>
-        </>
+        <TemplateComponent data={portfolioData} />
     );
 }

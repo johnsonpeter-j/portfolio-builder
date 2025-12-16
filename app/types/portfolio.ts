@@ -49,6 +49,7 @@ export interface PortfolioData {
         title: string;
         bio: string;
         email: string;
+        phoneNo: string;
         profilePhoto?: string; // URL to profile photo
         socials: SocialLink[];
     };

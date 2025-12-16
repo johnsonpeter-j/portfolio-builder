@@ -1,6 +1,10 @@
+"use client";
+
 import React from 'react';
 import { Mail, Phone, MapPin, Globe, Github, Linkedin, Twitter, ExternalLink, Calendar, Award } from 'lucide-react';
 import { TemplateProps } from '@/app/types/portfolio';
+import { getResponsiveGridClasses } from './utils';
+import PortfolioBuilderBadge from '@/app/components/PortfolioBuilderBadge';
 
 const Portfolio = ({ data }: TemplateProps) => {
   const formatDate = (date: string | Date) => {
@@ -45,13 +49,25 @@ const Portfolio = ({ data }: TemplateProps) => {
         {/* Contact Section */}
         <section className="border-b border-neutral-300 p-8 sm:p-12">
           <h2 className="text-sm font-bold text-neutral-900 mb-4 tracking-wider uppercase">Contact</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <div className={`${getResponsiveGridClasses(2, 2)} gap-4 text-sm`}>
             <div>
               <div className="mb-3">
                 <span className="font-semibold">Email:</span>{' '}
                 <a href={`mailto:${data.personalInfo.email}`} className="text-neutral-700 hover:underline">
                   {data.personalInfo.email}
                 </a>
+              </div>
+            </div>
+            <div>
+              <div className="mb-3">
+                <span className="font-semibold">Phone:</span>{' '}
+                {data.personalInfo.phoneNo ? (
+                  <a href={`tel:${data.personalInfo.phoneNo}`} className="text-neutral-700 hover:underline">
+                    {data.personalInfo.phoneNo}
+                  </a>
+                ) : (
+                  <span className="text-neutral-500">Not provided</span>
+                )}
               </div>
             </div>
             <div>
@@ -81,7 +97,7 @@ const Portfolio = ({ data }: TemplateProps) => {
         {data.experience && data.experience.length > 0 && (
           <section className="border-b border-neutral-300 p-8 sm:p-12">
             <h2 className="text-sm font-bold text-neutral-900 mb-6 tracking-wider uppercase">Professional Experience</h2>
-            <div className="space-y-8">
+            <div className={`${getResponsiveGridClasses(data.experience.length, 2)} gap-6`}>
               {data.experience.map((exp, idx) => (
                 <div key={idx}>
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2">
@@ -107,7 +123,7 @@ const Portfolio = ({ data }: TemplateProps) => {
         {data.certificates && data.certificates.length > 0 && (
           <section className="border-b border-neutral-300 p-8 sm:p-12">
             <h2 className="text-sm font-bold text-neutral-900 mb-6 tracking-wider uppercase">Certificates</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className={`${getResponsiveGridClasses(data.certificates.length, 2)} gap-6`}>
               {data.certificates.map((cert, idx) => (
                 <div key={idx}>
                   <h3 className="text-base font-bold text-neutral-900 mb-1">
@@ -183,6 +199,8 @@ const Portfolio = ({ data }: TemplateProps) => {
           </section>
         )}
       </div>
+
+      <PortfolioBuilderBadge />
     </div>
   );
 };

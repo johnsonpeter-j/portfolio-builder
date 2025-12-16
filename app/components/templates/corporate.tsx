@@ -1,6 +1,10 @@
+"use client";
+
 import React, { useState } from 'react';
-import { Mail, MapPin, Calendar, ExternalLink, Github, Linkedin, Twitter, Award, Briefcase, Code, User } from 'lucide-react';
+import { Mail, MapPin, Calendar, ExternalLink, Github, Linkedin, Twitter, Award, Briefcase, Code, User, Phone } from 'lucide-react';
 import { TemplateProps } from '@/app/types/portfolio';
+import { getResponsiveGridClasses } from './utils';
+import PortfolioBuilderBadge from '@/app/components/PortfolioBuilderBadge';
 
 const Portfolio = ({ data }: TemplateProps) => {
   const formatDate = (date: string | Date) => {
@@ -50,38 +54,48 @@ const Portfolio = ({ data }: TemplateProps) => {
                 </div>
                 <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-6">{data.personalInfo.bio}</p>
                 
-                <div className="flex items-center mb-4 flex-wrap">
-                  <Mail className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
-                  <a href={`mailto:${data.personalInfo.email}`} className="text-sm sm:text-base text-slate-600 hover:text-blue-600 transition-colors break-all">
-                    {data.personalInfo.email}
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4">
+                  <a 
+                    href={`mailto:${data.personalInfo.email}`} 
+                    className="p-2.5 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110 flex items-center gap-2 group"
+                  >
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 group-hover:text-white" />
                   </a>
+                  {data.personalInfo.phoneNo && (
+                    <a 
+                      href={`tel:${data.personalInfo.phoneNo}`} 
+                      className="p-2.5 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110 flex items-center gap-2 group"
+                    >
+                      <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 group-hover:text-white" />
+                    </a>
+                  )}
+                  
+                  {data.personalInfo.socials && data.personalInfo.socials.length > 0 && (
+                    <>
+                      {data.personalInfo.socials.map((social, idx) => {
+                        const getIcon = () => {
+                          switch(social.platform.toLowerCase()) {
+                            case 'github': return <Github className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 group-hover:text-white" />;
+                            case 'linkedin': return <Linkedin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 group-hover:text-white" />;
+                            case 'twitter': return <Twitter className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 group-hover:text-white" />;
+                            default: return <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 group-hover:text-white" />;
+                          }
+                        };
+                        return (
+                          <a
+                            key={idx}
+                            href={social.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2.5 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110 group"
+                          >
+                            {getIcon()}
+                          </a>
+                        );
+                      })}
+                    </>
+                  )}
                 </div>
-                
-                {data.personalInfo.socials && data.personalInfo.socials.length > 0 && (
-                  <div className="flex flex-wrap gap-3 sm:gap-4 mt-6">
-                    {data.personalInfo.socials.map((social, idx) => {
-                      const getIcon = () => {
-                        switch(social.platform.toLowerCase()) {
-                          case 'github': return <Github className="w-4 h-4 sm:w-5 sm:h-5" />;
-                          case 'linkedin': return <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />;
-                          case 'twitter': return <Twitter className="w-4 h-4 sm:w-5 sm:h-5" />;
-                          default: return <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5" />;
-                        }
-                      };
-                      return (
-                        <a
-                          key={idx}
-                          href={social.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2.5 sm:p-3 bg-slate-100 rounded-lg hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110"
-                        >
-                          {getIcon()}
-                        </a>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -94,7 +108,7 @@ const Portfolio = ({ data }: TemplateProps) => {
               <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2 sm:mr-3 flex-shrink-0" />
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">Work Experience</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className={`${getResponsiveGridClasses(data.experience.length, 3)} gap-4 sm:gap-6`}>
               {data.experience.map((exp, idx) => (
               <div key={idx} className="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow flex flex-col">
                 <div className="flex flex-col space-y-3 mb-4">
@@ -136,7 +150,7 @@ const Portfolio = ({ data }: TemplateProps) => {
               <Code className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2 sm:mr-3 flex-shrink-0" />
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">Featured Projects</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className={`${getResponsiveGridClasses(data.projects.length, 3)} gap-4 sm:gap-6`}>
               {data.projects.map((project, idx) => (
                 <div key={idx} className="bg-white rounded-lg sm:rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1">
                   {project.image && (
@@ -205,7 +219,7 @@ const Portfolio = ({ data }: TemplateProps) => {
               <Award className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2 sm:mr-3 flex-shrink-0" />
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">Certifications</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className={`${getResponsiveGridClasses(data.certificates.length, 3)} gap-4 sm:gap-6`}>
               {data.certificates.map((cert, idx) => (
               <div key={idx} className="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow flex flex-col">
                 <div className="flex-1">
@@ -248,6 +262,8 @@ const Portfolio = ({ data }: TemplateProps) => {
           <p className="text-slate-300">© 2024 {data.personalInfo.name}. All rights reserved.</p>
         </div>
       </footer>
+
+      <PortfolioBuilderBadge />
 
       <style>{`
         .line-clamp-3 {

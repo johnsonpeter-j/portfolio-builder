@@ -1,6 +1,10 @@
+"use client";
+
 import React from 'react';
-import { Github, Linkedin, Twitter, Mail, ExternalLink, Calendar, MapPin, Award } from 'lucide-react';
+import { Github, Linkedin, Twitter, Mail, ExternalLink, Calendar, MapPin, Award, Phone } from 'lucide-react';
 import { TemplateProps } from '@/app/types/portfolio';
+import { getResponsiveGridClasses } from './utils';
+import PortfolioBuilderBadge from '@/app/components/PortfolioBuilderBadge';
 
 const Portfolio = ({ data }: TemplateProps) => {
   const getSocialIcon = (platform: string) => {
@@ -85,6 +89,13 @@ const Portfolio = ({ data }: TemplateProps) => {
                 <Mail className="w-5 h-5" />
                 <span className="font-semibold">Get in Touch</span>
               </a>
+              {data.personalInfo.phoneNo && (
+                <a href={`tel:${data.personalInfo.phoneNo}`} 
+                   className="group relative flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/50">
+                  <Phone className="w-5 h-5" />
+                  <span className="font-semibold">Call Me</span>
+                </a>
+              )}
               
               {data.personalInfo.socials && data.personalInfo.socials.map((social, idx) => (
                 <a key={idx} href={social.link} target="_blank" rel="noopener noreferrer"
@@ -114,7 +125,7 @@ const Portfolio = ({ data }: TemplateProps) => {
             <h2 className="text-4xl font-bold mb-8 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Featured Projects
             </h2>
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className={`${getResponsiveGridClasses(data.projects.length, 2)} gap-8`}>
               {data.projects.map((project, idx) => (
                 <div key={idx} className="group relative bg-slate-900/50 rounded-2xl overflow-hidden border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02]">
                   {project.image && (
@@ -182,7 +193,7 @@ const Portfolio = ({ data }: TemplateProps) => {
             <h2 className="text-4xl font-bold mb-8 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Work Experience
             </h2>
-            <div className="space-y-6">
+            <div className={`${getResponsiveGridClasses(data.experience.length, 2)} gap-6`}>
               {data.experience.map((exp, idx) => (
                 <div key={idx} className="bg-slate-900/50 rounded-2xl p-6 border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
@@ -223,7 +234,7 @@ const Portfolio = ({ data }: TemplateProps) => {
             <h2 className="text-4xl font-bold mb-8 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Certifications
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className={`${getResponsiveGridClasses(data.certificates.length, 3)} gap-6`}>
               {data.certificates.map((cert, idx) => (
                 <div key={idx} className="bg-slate-900/50 rounded-2xl p-6 border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02]">
                   <div className="flex items-start gap-3 mb-4">
@@ -265,6 +276,8 @@ const Portfolio = ({ data }: TemplateProps) => {
           </div>
         </div>
       </footer>
+
+      <PortfolioBuilderBadge />
     </div>
   );
 };

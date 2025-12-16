@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { templateList } from "@/app/components/templates/registry";
 import { Button } from "@/app/components/ui/button";
-import { Sparkles, ArrowRight, Eye, Save, User, Layout, CheckCircle2, Loader2, Plus, FileText, Palette, AlertCircle } from "lucide-react";
+import { Sparkles, ArrowRight, Eye, Save, User, Layout, CheckCircle2, Loader2, Plus, FileText, Palette, AlertCircle, ArrowLeft } from "lucide-react";
 import { PortfolioData } from "@/app/types/portfolio";
 
 interface ProfileItem {
@@ -15,7 +15,7 @@ interface ProfileItem {
     content: PortfolioData;
 }
 
-export default function CreatePortfolioPage() {
+function CreatePortfolioContent() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -89,15 +89,15 @@ export default function CreatePortfolioPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     templateId: selectedTemplate,
+                    profileId: selectedProfile,
                     title: portfolioTitle || "My Portfolio",
                     description: portfolioDescription || "",
-                    content: profile.content,
                 }),
             });
 
             if (res.ok) {
                 const newPortfolio = await res.json();
-                router.push(`/builder/${newPortfolio._id}`);
+                router.push(`/dashboard`);
             } else {
                 throw new Error("Failed to create portfolio");
             }
@@ -175,7 +175,7 @@ export default function CreatePortfolioPage() {
                                     </div>
                                     <div>
                                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">Select Profile</h2>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Choose your profile data</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Profile data will be copied as starting point. Portfolio edits are independent.</p>
                                     </div>
                                 </div>
                                 {selectedProfile && (
@@ -367,6 +367,15 @@ export default function CreatePortfolioPage() {
                         {(selectedTemplate && selectedProfile) ? (
                             <div className="flex flex-col sm:flex-row gap-3 pt-2">
                                 <Button
+                                    onClick={() => router.push("/dashboard")}
+                                    variant="ghost"
+                                    className="gap-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    size="lg"
+                                >
+                                    <ArrowLeft className="h-4 w-4" />
+                                    Go Back
+                                </Button>
+                                <Button
                                     onClick={() => {
                                         if (selectedProfile && selectedTemplate) {
                                             // Preserve selections and form data in URL when navigating to preview
@@ -404,8 +413,7 @@ export default function CreatePortfolioPage() {
                                     ) : (
                                         <>
                                             <Save className="h-4 w-4" />
-                                            Create Portfolio
-                                            <ArrowRight className="h-4 w-4" />
+                                            Save
                                         </>
                                     )}
                                 </Button>
@@ -427,6 +435,21 @@ export default function CreatePortfolioPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function CreatePortfolioPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+                </div>
+            </div>
+        }>
+            <CreatePortfolioContent />
+        </Suspense>
     );
 }
 

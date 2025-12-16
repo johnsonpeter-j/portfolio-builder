@@ -6,8 +6,8 @@ import { useSession } from "next-auth/react";
 import { PortfolioData } from "@/app/types/portfolio";
 import { templates, templateList } from "@/app/components/templates/registry";
 import { Button } from "@/app/components/ui/button";
-import { Save, X, Plus, Trash2, Globe, CheckCircle2, Circle, User, Briefcase, FileText, Code, Image as ImageIcon, Link as LinkIcon, Github, Building2, Calendar, MapPin, Share2, Upload, Loader2, Layout } from "lucide-react";
-import { Experience } from "@/app/types/portfolio";
+import { Save, X, Plus, Trash2, Globe, CheckCircle2, Circle, User, Briefcase, FileText, Code, Image as ImageIcon, Link as LinkIcon, Github, Building2, Calendar, MapPin, Share2, Upload, Loader2, Layout, Award, Mail, Phone } from "lucide-react";
+import { Experience, Certificate } from "@/app/types/portfolio";
 
 // Simple debounce hook for auto-saving (implementation inline for simplicity)
 function useDebounce<T>(value: T, delay: number): T {
@@ -54,9 +54,12 @@ export default function BuilderPage() {
                         ...p.content,
                         personalInfo: {
                             ...p.content.personalInfo,
+                            email: p.content.personalInfo?.email || "",
+                            phoneNo: p.content.personalInfo?.phoneNo || "",
                             profilePhoto: p.content.personalInfo?.profilePhoto || "",
                         },
                         experience: p.content.experience || [],
+                        certificates: p.content.certificates || [],
                     };
                     setData(content);
                     setLoading(false);
@@ -326,6 +329,45 @@ export default function BuilderPage() {
         setPreviewKey(prev => prev + 1);
     };
 
+    // Certificate handlers
+    const addCertificate = () => {
+        setData(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                certificates: [...(prev.certificates || []), {
+                    name: "",
+                    provider: "",
+                    issuedOn: "",
+                    certificateId: "",
+                    certificateUrl: ""
+                }]
+            };
+        });
+        setPreviewKey(prev => prev + 1);
+    };
+
+    const updateCertificate = (index: number, field: keyof Certificate, value: string) => {
+        setData(prev => {
+            if (!prev) return null;
+            const newCertificates = [...(prev.certificates || [])];
+            newCertificates[index] = { ...newCertificates[index], [field]: value };
+            return { ...prev, certificates: newCertificates };
+        });
+        setPreviewKey(prev => prev + 1);
+    };
+
+    const removeCertificate = (index: number) => {
+        setData(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                certificates: (prev.certificates || []).filter((_, i) => i !== index)
+            };
+        });
+        setPreviewKey(prev => prev + 1);
+    };
+
     return (
         <div className="flex flex-col lg:flex-row h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
             {/* SIDEBAR EDITOR */}
@@ -450,6 +492,34 @@ export default function BuilderPage() {
                                     value={data.personalInfo.bio}
                                     onChange={(e) => updatePersonalInfo("bio", e.target.value)}
                                 />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block flex items-center gap-1">
+                                        <Mail className="h-3 w-3" />
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        placeholder="your.email@example.com"
+                                        className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                        value={data.personalInfo.email}
+                                        onChange={(e) => updatePersonalInfo("email", e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block flex items-center gap-1">
+                                        <Phone className="h-3 w-3" />
+                                        Phone Number
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        placeholder="+1 234 567 8900"
+                                        className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                        value={data.personalInfo.phoneNo}
+                                        onChange={(e) => updatePersonalInfo("phoneNo", e.target.value)}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block flex items-center gap-1">
@@ -797,6 +867,103 @@ export default function BuilderPage() {
                             {(!data.experience || data.experience.length === 0) && (
                                 <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">
                                     No experience added yet. Click "Add" to get started.
+                                </p>
+                            )}
+                        </div>
+                    </section>
+
+                    {/* Certificates */}
+                    <section className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <div className="flex items-center gap-2">
+                                <Award className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                                <h3 className="font-semibold text-gray-900 dark:text-white">Certificates</h3>
+                            </div>
+                            <Button onClick={addCertificate} size="sm" variant="secondary" className="gap-1">
+                                <Plus className="h-3 w-3" />
+                                Add
+                            </Button>
+                        </div>
+                        <div className="space-y-4">
+                            {(data.certificates || []).map((cert, i) => (
+                                <div key={i} className="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600 relative">
+                                    <button
+                                        onClick={() => removeCertificate(i)}
+                                        className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600 dark:hover:text-red-400 rounded transition"
+                                        aria-label="Remove certificate"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                    <div className="space-y-3 pr-6">
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block flex items-center gap-1">
+                                                    <Award className="h-3 w-3" />
+                                                    Certificate Name
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Certificate Name"
+                                                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                                    value={cert.name}
+                                                    onChange={(e) => updateCertificate(i, "name", e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Provider</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Issuing Organization"
+                                                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                                    value={cert.provider}
+                                                    onChange={(e) => updateCertificate(i, "provider", e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block flex items-center gap-1">
+                                                    <Calendar className="h-3 w-3" />
+                                                    Issued On
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="MM/YYYY"
+                                                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                                    value={cert.issuedOn}
+                                                    onChange={(e) => updateCertificate(i, "issuedOn", e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Certificate ID</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Optional ID"
+                                                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                                    value={cert.certificateId || ""}
+                                                    onChange={(e) => updateCertificate(i, "certificateId", e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block flex items-center gap-1">
+                                                <LinkIcon className="h-3 w-3" />
+                                                Certificate URL
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="https://..."
+                                                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                                value={cert.certificateUrl || ""}
+                                                onChange={(e) => updateCertificate(i, "certificateUrl", e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {(!data.certificates || data.certificates.length === 0) && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">
+                                    No certificates added yet. Click "Add" to get started.
                                 </p>
                             )}
                         </div>

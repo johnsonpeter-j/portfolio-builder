@@ -1,7 +1,10 @@
-import React from 'react';
-import { Github, Linkedin, Mail, ExternalLink, MapPin, Calendar } from 'lucide-react';
-import { TemplateProps } from '@/app/types/portfolio';
+"use client";
 
+import React from 'react';
+import { Github, Linkedin, Mail, ExternalLink, MapPin, Calendar, Phone } from 'lucide-react';
+import { TemplateProps } from '@/app/types/portfolio';
+import { getResponsiveGridClasses } from './utils';
+import PortfolioBuilderBadge from '@/app/components/PortfolioBuilderBadge';
 export default function Portfolio({ data }: TemplateProps) {
   const formatDate = (date: string | Date) => {
     if (typeof date === 'string') {
@@ -31,30 +34,40 @@ export default function Portfolio({ data }: TemplateProps) {
             <div className="flex-1 text-center sm:text-left">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">{data.personalInfo.name}</h1>
               <p className="text-lg sm:text-xl text-gray-600 mt-1">{data.personalInfo.title}</p>
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-3">
-                <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-1 text-gray-600 hover:text-blue-600">
-                  <Mail size={18} />
-                  <span className="text-sm">{data.personalInfo.email}</span>
-                </a>
-              </div>
             </div>
-            {data.personalInfo.socials && data.personalInfo.socials.length > 0 && (
-              <div className="flex gap-3">
-                {data.personalInfo.socials.map((social, idx) => (
+            <div className="flex gap-3">
+              <a 
+                href={`mailto:${data.personalInfo.email}`} 
+                className="p-2 bg-blue-50 hover:bg-blue-600 rounded-full transition group"
+              >
+                <Mail size={20} className="text-blue-600 group-hover:text-white" />
+              </a>
+              {data.personalInfo.phoneNo && (
                 <a 
-                  key={idx}
-                  href={social.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 bg-gray-100 hover:bg-blue-100 rounded-full transition"
+                  href={`tel:${data.personalInfo.phoneNo}`} 
+                  className="p-2 bg-blue-50 hover:bg-blue-600 rounded-full transition group"
                 >
-                  {social.platform === "GitHub" && <Github size={20} />}
-                  {social.platform === "LinkedIn" && <Linkedin size={20} />}
-                  {social.platform === "Twitter" && <ExternalLink size={20} />}
+                  <Phone size={20} className="text-blue-600 group-hover:text-white" />
                 </a>
-                ))}
-              </div>
-            )}
+              )}
+              {data.personalInfo.socials && data.personalInfo.socials.length > 0 && (
+                <>
+                  {data.personalInfo.socials.map((social, idx) => (
+                    <a 
+                      key={idx}
+                      href={social.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 bg-blue-50 hover:bg-blue-600 rounded-full transition group"
+                    >
+                      {social.platform === "GitHub" && <Github size={20} className="text-blue-600 group-hover:text-white" />}
+                      {social.platform === "LinkedIn" && <Linkedin size={20} className="text-blue-600 group-hover:text-white" />}
+                      {social.platform === "Twitter" && <ExternalLink size={20} className="text-blue-600 group-hover:text-white" />}
+                    </a>
+                  ))}
+                </>
+              )}
+            </div>
           </div>
           <p className="text-gray-700 mt-6 max-w-3xl text-center sm:text-left">{data.personalInfo.bio}</p>
         </div>
@@ -65,7 +78,7 @@ export default function Portfolio({ data }: TemplateProps) {
         {data.experience && data.experience.length > 0 && (
           <section className="mb-12 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Experience</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className={`${getResponsiveGridClasses(data.experience.length, 2)} gap-4 sm:gap-6`}>
               {data.experience.map((exp, idx) => (
               <div key={idx} className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
@@ -98,7 +111,7 @@ export default function Portfolio({ data }: TemplateProps) {
         {data.projects && data.projects.length > 0 && (
           <section className="mb-12 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Projects</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className={`${getResponsiveGridClasses(data.projects.length, 2)} gap-4 sm:gap-6`}>
               {data.projects.map((project, idx) => (
                 <div key={idx} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                   {project.image && (
@@ -165,7 +178,7 @@ export default function Portfolio({ data }: TemplateProps) {
         {data.certificates && data.certificates.length > 0 && (
           <section>
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Certifications</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className={`${getResponsiveGridClasses(data.certificates.length, 2)} gap-4 sm:gap-6`}>
               {data.certificates.map((cert, idx) => (
               <div key={idx} className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
                 <div className="flex flex-col gap-3">
@@ -202,6 +215,8 @@ export default function Portfolio({ data }: TemplateProps) {
           <p>© 2024 {data.personalInfo.name}. All rights reserved.</p>
         </div>
       </footer>
+
+      <PortfolioBuilderBadge />
     </div>
   );
 }

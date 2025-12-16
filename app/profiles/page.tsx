@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
+import { ConfirmModal } from "@/app/components/ui/confirm-modal";
 import { Edit2, Trash2, Plus, User, Calendar, ArrowRight } from "lucide-react";
 
 interface ProfileItem {
@@ -18,6 +19,10 @@ export default function ProfilesPage() {
     const { data: session, status } = useSession();
     const [profiles, setProfiles] = useState<ProfileItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; profileId: string | null }>({
+        isOpen: false,
+        profileId: null,
+    });
     const router = useRouter();
 
     useEffect(() => {
@@ -49,18 +54,24 @@ export default function ProfilesPage() {
         router.push("/profiles/new");
     };
 
-    const deleteProfile = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this profile?")) return;
+    const handleDeleteClick = (id: string) => {
+        setDeleteModal({ isOpen: true, profileId: id });
+    };
+
+    const deleteProfile = async () => {
+        if (!deleteModal.profileId) return;
 
         try {
-            const res = await fetch(`/api/profiles/${id}`, {
+            const res = await fetch(`/api/profiles/${deleteModal.profileId}`, {
                 method: "DELETE",
             });
             if (res.ok) {
-                setProfiles(profiles.filter((p) => p._id !== id));
+                setProfiles(profiles.filter((p) => p._id !== deleteModal.profileId));
             }
         } catch (error) {
             console.error("Failed to delete", error);
+        } finally {
+            setDeleteModal({ isOpen: false, profileId: null });
         }
     };
 
@@ -146,19 +157,34 @@ export default function ProfilesPage() {
                                             </Button>
                                         </Link>
 
-                                        <button
-                                            onClick={() => deleteProfile(profile._id)}
-                                            className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+                                        <Button
+                                            onClick={() => handleDeleteClick(profile._id)}
+                                            variant="outline"
+                                            className="flex-1 gap-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700"
+                                            size="sm"
                                             aria-label="Delete profile"
                                         >
-                                            <Trash2 size={16} />
-                                        </button>
+                                            <Trash2 size={14} />
+                                            Delete
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 )}
+
+                {/* Delete Confirmation Modal */}
+                <ConfirmModal
+                    isOpen={deleteModal.isOpen}
+                    onClose={() => setDeleteModal({ isOpen: false, profileId: null })}
+                    onConfirm={deleteProfile}
+                    title="Delete Profile"
+                    message="Are you sure you want to delete this profile? This action cannot be undone."
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                    variant="danger"
+                />
             </div>
         </div>
     );

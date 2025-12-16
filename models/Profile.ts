@@ -22,6 +22,7 @@ const ProfileSchema = new Schema(
                 title: String,
                 bio: String,
                 email: String,
+                phoneNo: String,
                 profilePhoto: String,
                 socials: [
                     {

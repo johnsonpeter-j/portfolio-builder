@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { initializeAdmin } from "./initAdmin";
 
 const MONGO_URL = process.env.MONGO_URL;
 
@@ -21,8 +22,16 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
+let adminInitPromise: Promise<void> | null = null;
+
 export async function connectToDatabase() {
   if (cached.conn) {
+    // Initialize admin on first connection (only once, fire and forget)
+    if (!adminInitPromise) {
+      adminInitPromise = initializeAdmin().catch(err => {
+        console.error("Admin initialization error:", err);
+      });
+    }
     return cached.conn;
   }
 
@@ -31,7 +40,13 @@ export async function connectToDatabase() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGO_URL!, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGO_URL!, opts).then(async (mongoose) => {
+      // Initialize admin after first successful connection
+      if (!adminInitPromise) {
+        adminInitPromise = initializeAdmin().catch(err => {
+          console.error("Admin initialization error:", err);
+        });
+      }
       return mongoose.connection;
     });
   }

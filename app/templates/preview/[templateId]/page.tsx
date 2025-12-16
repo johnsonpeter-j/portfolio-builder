@@ -12,6 +12,7 @@ const samplePortfolioData: PortfolioData = {
         title: "Full Stack Developer",
         bio: "Passionate developer with 5+ years of experience building scalable web applications. I love creating beautiful, functional interfaces that users enjoy.",
         email: "john.doe@example.com",
+        phoneNo: "+1 (555) 123-4567",
         profilePhoto: "https://api.dicebear.com/7.x/avataaars/svg?seed=JohnDoe",
         socials: [
             { platform: "GitHub", link: "https://github.com" },
@@ -113,6 +114,9 @@ export default async function TemplatePreviewPage({ params }: Props) {
         </div>
     );
 }
+
+
+
 
 
 
