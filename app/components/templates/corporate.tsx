@@ -3,17 +3,10 @@
 import React, { useState } from 'react';
 import { Mail, MapPin, Calendar, ExternalLink, Github, Linkedin, Twitter, Award, Briefcase, Code, User, Phone } from 'lucide-react';
 import { TemplateProps } from '@/app/types/portfolio';
-import { getResponsiveGridClasses } from './utils';
+import { getResponsiveGridClasses, formatDate } from './utils';
 import PortfolioBuilderBadge from '@/app/components/PortfolioBuilderBadge';
 
 const Portfolio = ({ data }: TemplateProps) => {
-  const formatDate = (date: string | Date) => {
-    if (typeof date === 'string') {
-      return new Date(date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    }
-    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-  };
-
   // Handle skills - can be string[] or other formats
   const skillsArray = Array.isArray(data.skills) 
     ? data.skills.filter((s): s is string => typeof s === 'string')

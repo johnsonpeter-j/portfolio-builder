@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Github, Linkedin, Twitter, Mail, ExternalLink, Calendar, MapPin, Award, Briefcase, Code, User, FileText, Phone } from 'lucide-react';
 import { TemplateProps } from '@/app/types/portfolio';
-import { getResponsiveGridClasses } from './utils';
+import { getResponsiveGridClasses, formatDate } from './utils';
 import PortfolioBuilderBadge from '@/app/components/PortfolioBuilderBadge';
 
 const Portfolio = ({ data }: TemplateProps) => {
@@ -27,29 +27,6 @@ const Portfolio = ({ data }: TemplateProps) => {
     ? data.skills.filter((s): s is string => typeof s === 'string')
     : [];
 
-  const formatDate = (date: string | Date): string => {
-    if (!date) return 'N/A';
-    
-    try {
-      let dateObj: Date;
-      if (typeof date === 'string') {
-        if (!date.trim()) return 'N/A';
-        dateObj = new Date(date);
-      } else {
-        dateObj = date;
-      }
-      
-      // Check if date is valid
-      if (isNaN(dateObj.getTime())) {
-        return typeof date === 'string' ? date : 'N/A'; // Return the original string if invalid
-      }
-      
-      return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(dateObj);
-    } catch (error) {
-      // If formatting fails, return the original value or N/A
-      return typeof date === 'string' ? date : 'N/A';
-    }
-  };
 
   const getSocialIcon = (platform: string) => {
     switch(platform) {

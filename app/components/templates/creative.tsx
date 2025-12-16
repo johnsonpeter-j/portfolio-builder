@@ -3,7 +3,7 @@
 import React from 'react';
 import { Github, Linkedin, Twitter, Mail, ExternalLink, Calendar, MapPin, Award, Phone } from 'lucide-react';
 import { TemplateProps } from '@/app/types/portfolio';
-import { getResponsiveGridClasses } from './utils';
+import { getResponsiveGridClasses, formatDate } from './utils';
 import PortfolioBuilderBadge from '@/app/components/PortfolioBuilderBadge';
 
 const Portfolio = ({ data }: TemplateProps) => {
@@ -14,13 +14,6 @@ const Portfolio = ({ data }: TemplateProps) => {
       case 'twitter': return <Twitter className="w-5 h-5" />;
       default: return <ExternalLink className="w-5 h-5" />;
     }
-  };
-
-  const formatDate = (date: string | Date) => {
-    if (typeof date === 'string') {
-      return new Date(date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    }
-    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
   };
 
   // Handle skills - can be string[] or other formats
@@ -106,12 +99,6 @@ const Portfolio = ({ data }: TemplateProps) => {
               ))}
             </div>
 
-            {/* Scroll Indicator */}
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-              <div className="w-6 h-10 border-2 border-purple-400/50 rounded-full flex items-start justify-center p-2">
-                <div className="w-1 h-3 bg-purple-400 rounded-full animate-pulse"></div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

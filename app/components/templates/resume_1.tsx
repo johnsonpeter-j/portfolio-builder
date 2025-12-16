@@ -3,21 +3,10 @@
 import React from 'react';
 import { Mail, Phone, MapPin, Globe, Github, Linkedin, Twitter, ExternalLink, Calendar, Award } from 'lucide-react';
 import { TemplateProps } from '@/app/types/portfolio';
-import { getResponsiveGridClasses } from './utils';
+import { getResponsiveGridClasses, formatDate } from './utils';
 import PortfolioBuilderBadge from '@/app/components/PortfolioBuilderBadge';
 
 const Portfolio = ({ data }: TemplateProps) => {
-  const formatDate = (date: string | Date) => {
-    if (typeof date === 'string') {
-      return new Date(date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    }
-    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-  };
-
-  const formatYear = (dateString: string) => {
-    if (!dateString) return '';
-    return dateString.substring(0, 4);
-  };
 
   // Handle skills - can be string[] or other formats
   const skillsArray = Array.isArray(data.skills) 
@@ -48,48 +37,76 @@ const Portfolio = ({ data }: TemplateProps) => {
 
         {/* Contact Section */}
         <section className="border-b border-neutral-300 p-8 sm:p-12">
-          <h2 className="text-sm font-bold text-neutral-900 mb-4 tracking-wider uppercase">Contact</h2>
-          <div className={`${getResponsiveGridClasses(2, 2)} gap-4 text-sm`}>
-            <div>
-              <div className="mb-3">
-                <span className="font-semibold">Email:</span>{' '}
-                <a href={`mailto:${data.personalInfo.email}`} className="text-neutral-700 hover:underline">
+          <h2 className="text-sm font-bold text-neutral-900 mb-6 tracking-wider uppercase">Contact</h2>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center">
+                <Mail className="w-5 h-5 text-neutral-700" />
+              </div>
+              <div className="flex-1">
+                <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide block mb-1">Email</span>
+                <a 
+                  href={`mailto:${data.personalInfo.email}`} 
+                  className="text-neutral-900 hover:text-neutral-600 transition-colors font-medium"
+                >
                   {data.personalInfo.email}
                 </a>
               </div>
             </div>
-            <div>
-              <div className="mb-3">
-                <span className="font-semibold">Phone:</span>{' '}
-                {data.personalInfo.phoneNo ? (
-                  <a href={`tel:${data.personalInfo.phoneNo}`} className="text-neutral-700 hover:underline">
+            
+            {data.personalInfo.phoneNo && (
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-neutral-700" />
+                </div>
+                <div className="flex-1">
+                  <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide block mb-1">Phone</span>
+                  <a 
+                    href={`tel:${data.personalInfo.phoneNo}`} 
+                    className="text-neutral-900 hover:text-neutral-600 transition-colors font-medium"
+                  >
                     {data.personalInfo.phoneNo}
                   </a>
-                ) : (
-                  <span className="text-neutral-500">Not provided</span>
-                )}
+                </div>
               </div>
-            </div>
-            <div>
-              {data.personalInfo.socials && data.personalInfo.socials.length > 0 && (
-                <div className="mb-3">
-                  <span className="font-semibold">Socials:</span>{' '}
-                  <div className="flex gap-2 mt-1">
-                    {data.personalInfo.socials.map((social, idx) => (
-                      <a
-                        key={idx}
-                        href={social.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-neutral-700 hover:underline"
-                      >
-                        {social.platform}
-                      </a>
-                    ))}
+            )}
+            
+            {data.personalInfo.socials && data.personalInfo.socials.length > 0 && (
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center mt-1">
+                  <div className="w-5 h-5 flex items-center justify-center">
+                    <div className="w-4 h-4 rounded-full bg-neutral-700"></div>
                   </div>
                 </div>
-              )}
-            </div>
+                <div className="flex-1">
+                  <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide block mb-2">Social Links</span>
+                  <div className="flex flex-wrap gap-3">
+                    {data.personalInfo.socials.map((social, idx) => {
+                      const getIcon = () => {
+                        switch(social.platform.toLowerCase()) {
+                          case 'github': return <Github className="w-4 h-4" />;
+                          case 'linkedin': return <Linkedin className="w-4 h-4" />;
+                          case 'twitter': return <Twitter className="w-4 h-4" />;
+                          default: return <ExternalLink className="w-4 h-4" />;
+                        }
+                      };
+                      return (
+                        <a
+                          key={idx}
+                          href={social.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-3 py-1.5 bg-neutral-50 hover:bg-neutral-200 rounded-md transition-colors text-sm font-medium text-neutral-900"
+                        >
+                          {getIcon()}
+                          <span>{social.platform}</span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
@@ -102,7 +119,7 @@ const Portfolio = ({ data }: TemplateProps) => {
                 <div key={idx}>
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2">
                     <h3 className="text-lg font-bold text-neutral-900">
-                      {exp.position} | {formatYear(exp.startDate)}-{exp.current ? 'Present' : (exp.endDate ? formatYear(exp.endDate) : 'Present')}
+                      {exp.position} | {formatDate(exp.startDate)} - {exp.current ? 'Present' : (exp.endDate ? formatDate(exp.endDate) : 'Present')}
                     </h3>
                   </div>
                   <p className="text-base font-medium text-neutral-700 mb-3">{exp.company}</p>
@@ -127,7 +144,7 @@ const Portfolio = ({ data }: TemplateProps) => {
               {data.certificates.map((cert, idx) => (
                 <div key={idx}>
                   <h3 className="text-base font-bold text-neutral-900 mb-1">
-                    {cert.name} | {formatYear(cert.issuedOn)}
+                    {cert.name} | {formatDate(cert.issuedOn)}
                   </h3>
                   <p className="text-sm text-neutral-700">{cert.provider}</p>
                   {cert.certificateUrl && (

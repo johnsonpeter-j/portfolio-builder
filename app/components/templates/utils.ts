@@ -38,6 +38,35 @@ export function getResponsiveGridClasses(count: number, maxCols: number = 3): st
     return "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
 }
 
+/**
+ * Formats a date string or Date object to a readable format (e.g., "Jan 2024")
+ * @param date - Date string or Date object
+ * @returns Formatted date string or 'N/A' if invalid
+ */
+export const formatDate = (date: string | Date): string => {
+    if (!date) return 'N/A';
+    
+    try {
+        let dateObj: Date;
+        if (typeof date === 'string') {
+            if (!date.trim()) return 'N/A';
+            dateObj = new Date(date);
+        } else {
+            dateObj = date;
+        }
+        
+        // Check if date is valid
+        if (isNaN(dateObj.getTime())) {
+            return typeof date === 'string' ? date : 'N/A'; // Return the original string if invalid
+        }
+        
+        return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(dateObj);
+    } catch (error) {
+        // If formatting fails, return the original value or N/A
+        return typeof date === 'string' ? date : 'N/A';
+    }
+};
+
 
 
 
