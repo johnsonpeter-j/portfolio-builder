@@ -1,5 +1,5 @@
-import MinimalTemplate from "./minimal";
-import ModernTemplate from "./modern";
+import MinimalTemplate from "./Minimal";
+import ModernTemplate from "./Modern";
 import CreativeTemplate from "./creative";
 import CorporateTemplate from "./corporate";
 import Resume1Template from "./resume_1";
